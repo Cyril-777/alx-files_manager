@@ -1,6 +1,6 @@
 #!/usr/bin/node
 
-import redis from 'redis';
+import { createClient } from 'redis';
 import { promisify } from 'util';
 
 class RedisClient {
@@ -10,17 +10,22 @@ class RedisClient {
   }
 
   isAlive() {
-    return this.client.connected;
+    if (this.client.connected) {
+      return true;
+    }
+    return false;
   }
 
   async get(key) {
     const asyncGet = promisify(this.client.get).bind(this.client);
-    return asyncGet(key);
+    const val = await asyncGet(key);
+    return val;
   }
 
   async set(key, value, duration) {
     const asyncSet = promisify(this.client.set).bind(this.client);
-    await asyncSet(key, value, 'EX', duration);
+    await asyncSet(key, value);
+    await this.client.expire(key, duration);
   }
 
   async del(key) {
@@ -30,4 +35,4 @@ class RedisClient {
 }
 
 const redisClient = new RedisClient();
-export default redisClient;
+module.exports = redisClient;
