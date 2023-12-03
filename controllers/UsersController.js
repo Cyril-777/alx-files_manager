@@ -1,3 +1,5 @@
+#!/usr/bin/node
+
 import sha1 from 'sha1';
 import DBClient from '../utils/db';
 
